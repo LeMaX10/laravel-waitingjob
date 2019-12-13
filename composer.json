@@ -1,0 +1,40 @@
+{
+  "name": "lemax10/laravel-waitingjob",
+  "description": "A simple timer to implement the wait for the result of a job from the queue.",
+  "keywords": ["laravel", "job", "queue", "lemax10"],
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Vladimir Pyankov",
+      "email": "rdlrobot@gmail.com",
+      "homepage": "https://github.com/LeMaX10"
+    }
+  ],
+  "require": {
+    "php": ">=7.1",
+    "nesbot/carbon": "^2.16"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "~4.8.36 || ^5.7.27 || ^6.5.8"
+  },
+  "autoload": {
+    "psr-4": {
+      "LeMaX10\\WaitingJob\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "LeMaX10\\WaitingJob\\Tests\\": "tests/"
+    }
+  },
+  "scripts": {
+    "test": "vendor/bin/phpunit"
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "LeMaX10\\WaitingJob\\ServiceProvider"
+      ]
+    }
+  }
+}
