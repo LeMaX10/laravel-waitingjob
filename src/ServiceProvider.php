@@ -25,6 +25,9 @@ class ServiceProvider extends BaseServiceProvider
         });
     }
 
+    /**
+     *
+     */
     public function boot()
     {
         $source = realpath($raw = __DIR__ . '/../config/waitingjob.php') ?: $raw;

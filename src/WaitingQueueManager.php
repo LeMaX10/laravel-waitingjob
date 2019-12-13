@@ -18,17 +18,22 @@ class WaitingQueueManager
     /**
      * @var int
      */
-    protected $timeout = 10;
+    protected $timeout;
 
     /**
      * @var int
      */
-    protected $ttl = 1;
+    protected $ttl;
+
+    /**
+     * @var string
+     */
+    protected $queue;
 
     /**
      * @var array
      */
-    protected $cache = [];
+    protected $timers = [];
 
     /**
      * WaitingQueueManager constructor.
@@ -36,8 +41,9 @@ class WaitingQueueManager
      */
     public function __construct(array $config = [])
     {
-        $this->timeout = $config['timeout'];
-        $this->ttl     = $config['ttl'];
+        $this->setTimeout($config['timeout'])
+             ->setTtl($config['ttl'])
+             ->setQueue($config['queue']);
     }
 
     /**
@@ -47,6 +53,36 @@ class WaitingQueueManager
     public function setJob(string $class)
     {
         $this->job = $class;
+        return $this;
+    }
+
+    /**
+     * @param string $queue
+     * @return $this
+     */
+    public function setQueue(string $queue): self
+    {
+        $this->queue = $queue;
+        return $this;
+    }
+
+    /**
+     * @param int $timeout
+     * @return $this
+     */
+    public function setTimeout(int $timeout): self
+    {
+        $this->timeout = $timeout;
+        return $this;
+    }
+
+    /**
+     * @param int $ttl
+     * @return $this
+     */
+    public function setTtl(int $ttl): self
+    {
+        $this->ttl = $ttl;
         return $this;
     }
 
@@ -68,9 +104,9 @@ class WaitingQueueManager
     public function waiting(\Closure $callback, array $params = [])
     {
         $uuid = $this->getId();
-        $this->cache[$uuid] = Carbon::now()->addSeconds($this->timeout)->timestamp;
+        $this->timers[$uuid] = Carbon::now()->addSeconds($this->timeout)->timestamp;
 
-        Queue::push(new $this->job($uuid, $params));
+        Queue::pushOn($this->queue, new $this->job($uuid, $params));
         return $this->waitingResult($uuid, $callback);
     }
 
@@ -87,11 +123,11 @@ class WaitingQueueManager
             $result = $this->getQueueResult($uuid);
 
             if($result) {
-                unset($this->cache[$uuid]);
+                unset($this->timers[$uuid]);
             } else {
-                sleep(1);
+                usleep(900);
             }
-        } while(isset($this->cache[$uuid]) && Carbon::now()->timestamp <= $this->cache[$uuid]);
+        } while(isset($this->timers[$uuid]) && Carbon::now()->timestamp <= $this->timers[$uuid]);
 
         if(is_array($result) && isset($result['error'])) {
             throw new \Exception($result['error']);
