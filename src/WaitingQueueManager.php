@@ -101,8 +101,14 @@ class WaitingQueueManager
      * @return mixed
      * @throws \Exception
      */
-    public function waiting(\Closure $callback, array $params = [])
+    public function waiting(array $params = [], ?\Closure $callback = null)
     {
+        if (! $callback) {
+            $callback = static function($result) {
+                return $result;
+            };
+        }
+
         $uuid = $this->getId();
         $this->timers[$uuid] = Carbon::now()->addSeconds($this->timeout)->timestamp;
 

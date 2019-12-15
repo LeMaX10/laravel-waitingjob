@@ -18,6 +18,9 @@
     "phpunit/phpunit": "~4.8.36 || ^5.7.27 || ^6.5.8"
   },
   "autoload": {
+    "files": [
+      "src/helpers.php"
+    ],
     "psr-4": {
       "LeMaX10\\WaitingJob\\": "src/"
     }
